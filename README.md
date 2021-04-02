@@ -1,3 +1,10 @@
+## EasyDB SQLITE compatibility branch
+
+EasyDB is not compatible with SQLITE features: ON CONFLICT, REPLACE
+this branch is fast and dirty solution
+work in progress now
+
+
 # EasyDB - Simple Database Abstraction Layer
 
 [![Build Status](https://travis-ci.org/paragonie/easydb.svg?branch=master)](https://travis-ci.org/paragonie/easydb)
