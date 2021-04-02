@@ -517,6 +517,7 @@ class EasyDBSqlite
      * @throws \TypeError
      * @psalm-suppress RedundantCastGivenDocblockType
      */
+    
     public function insert(string $table, array $map): int
     {
         if (!empty($map)) {
@@ -540,6 +541,84 @@ class EasyDBSqlite
             \PDO::FETCH_BOTH,
             true
         );
+    }
+
+    /**
+     * upsert SQLITE spec solution
+     */
+    
+    public function upset(string $table, array $map): int
+    {
+        if (!empty($map)) {
+            if (!$this->is1DArray($map)) {
+                throw new Issues\MustBeOneDimensionalArray(
+                    'Only one-dimensional arrays are allowed.'
+                );
+            }
+        }
+	$tablestruct_q = "SELECT sql FROM sqlite_master WHERE name='$table'";
+	$rows = $this->run($tablestruct_q);
+        $tablestruct = $rows[0]['sql'];
+
+	if(!strpos($tablestruct,'UNIQUE')) {
+		$conflict_str = NULL;
+	} else {
+		$conflict_str  = preg_replace('/\).*/','', 
+			preg_replace('/.*UNIQUE\(/','',str_replace("\n"," ",$tablestruct)));
+	}
+
+	if(!$conflict_str) { 
+
+            list($queryString, $values) = $this->buildInsertQueryBoolSafe(
+                $table,
+                $map
+            );
+            /** @var string $queryString */
+            /** @var array $values */
+
+            return (int) $this->safeQuery(
+                (string) $queryString,
+                $values,
+                \PDO::FETCH_BOTH,
+                true
+            );
+
+	} else {
+		$unique_keys = array_map('trim',explode(',',$conflict_str));
+
+            foreach ($map as $key => $value) {
+                $columns[] = $key;
+                if (\is_null($value)) {
+                    $placeholders[] = 'NULL';
+		    if(!in_array($key,$unique_keys))
+			$update_set[]= "$key = NULL";
+                } elseif (\is_bool($value)) {
+                    $placeholders[] = $value ? "'1'" : "'0'";
+	            if(!in_array($key,$unique_keys))
+                        $update_set[] = $value ? "$key = '1'" : "$key = '0'";
+                } else {
+                    $placeholders[] = '?';
+                    $values[] = $value;
+	            if(!in_array($key,$unique_keys))
+		        $update_set[]= "$key = '$value'";
+                }
+            }
+        
+            $columns = \array_map([$this, 'escapeIdentifier'], $columns);
+
+
+           
+	    $queryString =  "INSERT INTO $table (".implode(',',$columns).")
+		VALUES ('".implode("','",$values)."' ) 
+		ON CONFLICT ($conflict_str) 
+		DO UPDATE SET ".implode(',',$update_set)."";
+
+            return (int) $this->safeQuery(
+                (string) $queryString,[] , 
+                \PDO::FETCH_BOTH,
+                true
+            );
+    	}
     }
 
     /**
@@ -1134,6 +1213,7 @@ class EasyDBSqlite
         }
 
         if (empty($params)) {
+		var_dump($statement);
             $stmt = $this->pdo->query($statement);
             if ($returnNumAffected) {
                 return (int) $stmt->rowCount();
