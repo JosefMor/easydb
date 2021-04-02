@@ -38,7 +38,8 @@ abstract class Factory
      * @return \ParagonIE\EasyDB\EasyDB
      * @throws Issues\ConstructorFailed
      */
-    public static function fromArray(array $config): EasyDB
+    //public static function fromArray(array $config): EasyDB
+    public static function fromArray(array $config)
     {
 
         /** @var string $dsn */
@@ -104,6 +105,9 @@ abstract class Factory
         if (!empty($post_query)) {
             $pdo->query($post_query);
         }
+
+	if($dbEngine === 'sqlite')
+            return new EasyDBSqlite($pdo, $dbEngine, $options);
 
         return new EasyDB($pdo, $dbEngine, $options);
     }
