@@ -1,8 +1,49 @@
-## EasyDB SQLITE compatibility branch
+# EasyDB SQLITE compatibility branch
 
 EasyDB is not compatible with SQLITE features: ON CONFLICT, REPLACE
 this branch is fast and dirty solution
 work in progress now
+
+## SQLITE insert / update specialities
+
+### Upset - Insert Or Update specific fields in SQLITE 
+
+```php
+$db->upset('comments', [
+    'blogpostid' => $_POST['blogpost'],
+    'userid' => $_SESSION['user'],
+    'comment' => $_POST['body']
+]);
+```
+Automagicaly found UNIQUE key and generate upset SQL code
+Useful for inserts without ROWID key.
+Upset is important for insert / update with not all fields values in command
+(dont replace each fields in record, if exist)
+
+
+### Upset - Insert Or Update record en SQLITE 
+
+```php
+$db->replace('comments', [
+    'blogpostid' => $_POST['blogpost'],
+    'userid' => $_SESSION['user'],
+    'comment' => $_POST['body']
+]);
+```
+REPLACE command is shortened version for INSERT OR UPDATE in SQLITE.
+
+
+```php
+$db->replaceMany('comments', [ 
+
+    [ 'blogpostid' => $_POST[0]['blogpost'], 'userid' => $_SESSION['user'], 'comment' => $_POST[0]['body'] ],
+    [ 'blogpostid' => $_POST[1]['blogpost'], 'userid' => $_SESSION['user'], 'comment' => $_POST[1]['body'] ]
+
+]);
+```
+
+
+
 
 
 # EasyDB - Simple Database Abstraction Layer
