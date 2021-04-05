@@ -6,7 +6,7 @@ work in progress now
 
 ## SQLITE insert / update specialities
 
-### Upset - Insert Or Update specific fields in SQLITE 
+### UPSET - Insert Or Update specific fields in SQLITE 
 
 ```php
 $db->upset('comments', [
@@ -20,8 +20,7 @@ Useful for inserts without ROWID key.
 Upset is important for insert / update with not all fields values in command
 (dont replace each fields in record, if exist)
 
-
-### Upset - Insert Or Update record en SQLITE 
+### REPLACE - Insert Or Update record in SQLITE 
 
 ```php
 $db->replace('comments', [
@@ -32,6 +31,7 @@ $db->replace('comments', [
 ```
 REPLACE command is shortened version for INSERT OR UPDATE in SQLITE.
 
+### REPLACEMANY push new or updated records
 
 ```php
 $db->replaceMany('comments', [ 
