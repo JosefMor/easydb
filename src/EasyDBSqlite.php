@@ -5,16 +5,7 @@ namespace ParagonIE\EasyDB;
 
 use \ParagonIE\EasyDB\Exception as Issues;
 use \Throwable;
-/*
-funkce k rozvinuti 
-    public function insert(string $table, array $map): int
-    public function insertIgnore(string $table, array $map) : int
-    public function insertOnDuplicateKeyUpdate(
-    public function insertGet(string $table, array $map, string $field)
-    public function insertMany(string $table, array $maps): int
-    public function insertReturnId(string $table, array $map, string $sequenceName = '')
-    public function buildInsertQuery(string $table, array $columns): string
- * */
+
 /**
  * Class EasyDB
  *
@@ -545,6 +536,7 @@ class EasyDBSqlite
 
     /**
      * upsert SQLITE spec solution
+     * TODO error if $table not exists
      */
     
     public function upset(string $table, array $map): int
@@ -1213,7 +1205,6 @@ class EasyDBSqlite
         }
 
         if (empty($params)) {
-		var_dump($statement);
             $stmt = $this->pdo->query($statement);
             if ($returnNumAffected) {
                 return (int) $stmt->rowCount();
